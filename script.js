@@ -31,6 +31,10 @@
   let W = 0, H = 0, DPR = 1;
   let nodes = [];
   let edges = [];
+  let fiedler = null;        // v₂ — second-smallest eigenvector of L
+  let fiedlerLambda = 0;     // λ₂ — algebraic connectivity
+  let cutCount = 0;          // # edges across the Fiedler cut
+  let adj = null;            // per-node neighbour lists for fast L·x
 
   // Mouse in screen space
   const mouse = { x: -9999, y: -9999, alive: false };
@@ -90,11 +94,166 @@
       }
     }
 
-    // Compute node degrees for visual emphasis
+    // Compute node degrees + adjacency lists
+    adj = new Array(nodes.length);
+    for (let i = 0; i < nodes.length; i++) adj[i] = [];
     for (const e of edges) {
       nodes[e.a].deg++;
       nodes[e.b].deg++;
+      adj[e.a].push(e.b);
+      adj[e.b].push(e.a);
     }
+
+    // Compute the Fiedler vector v₂ — eigenvector of the graph
+    // Laplacian L = D − A corresponding to the second-smallest
+    // eigenvalue λ₂. Drives the spectral clustering of the background.
+    computeFiedler();
+
+    // Recolor nodes by their sign on the Fiedler vector. This makes the
+    // cyan / magenta separation an actual spectral partition, not random.
+    // Small |v[i]| → "on the cut" → violet.
+    if (fiedler) {
+      // Find a robust scale (median of |v|) so the violet band is meaningful
+      const absSorted = [...fiedler].map(Math.abs).sort((a, b) => a - b);
+      const median = absSorted[Math.floor(absSorted.length / 2)] || 1;
+      const cutBand = median * 0.35;
+      for (let i = 0; i < nodes.length; i++) {
+        const x = fiedler[i];
+        if (Math.abs(x) < cutBand)    nodes[i].c = 2; // boundary
+        else if (x > 0)                nodes[i].c = 0; // partition A — cyan
+        else                           nodes[i].c = 1; // partition B — magenta
+      }
+      // Count cut edges (sign(v[a]) ≠ sign(v[b]))
+      cutCount = 0;
+      for (const e of edges) {
+        if (fiedler[e.a] * fiedler[e.b] < 0) {
+          cutCount++;
+          e.cut = true;
+        } else {
+          e.cut = false;
+        }
+      }
+    }
+
+    // Update the live HUD with the new values
+    updateLaplacianHUD();
+  }
+
+  /* — Live HUD that surfaces the live graph-Laplacian metrics —
+     λ₂(G) is the algebraic connectivity; cut is the # of edges
+     whose endpoints fall on opposite sides of the Fiedler cut. */
+  let hudEl = null;
+  function ensureLaplacianHUD() {
+    if (hudEl) return;
+    hudEl = document.createElement('div');
+    hudEl.className = 'lap-hud';
+    hudEl.setAttribute('aria-hidden', 'true');
+    hudEl.innerHTML =
+      '<span class="lap-hud-title">background.L</span>' +
+      '<span class="lap-hud-sep">·</span>' +
+      '<span class="lap-hud-pair"><span class="lap-hud-label">λ₂</span><span class="lap-hud-val" data-k="lambda">—</span></span>' +
+      '<span class="lap-hud-sep">·</span>' +
+      '<span class="lap-hud-pair"><span class="lap-hud-label">|V|</span><span class="lap-hud-val" data-k="V">—</span></span>' +
+      '<span class="lap-hud-sep">·</span>' +
+      '<span class="lap-hud-pair"><span class="lap-hud-label">|E|</span><span class="lap-hud-val" data-k="E">—</span></span>' +
+      '<span class="lap-hud-sep">·</span>' +
+      '<span class="lap-hud-pair"><span class="lap-hud-label">cut</span><span class="lap-hud-val" data-k="cut">—</span></span>';
+    document.body.appendChild(hudEl);
+  }
+
+  function updateLaplacianHUD() {
+    ensureLaplacianHUD();
+    const set = (k, v) => {
+      const el = hudEl.querySelector('[data-k="' + k + '"]');
+      if (el) el.textContent = v;
+    };
+    set('lambda', fiedlerLambda.toFixed(4));
+    set('V', nodes.length);
+    set('E', edges.length);
+    set('cut', cutCount);
+    hudEl.classList.remove('flash');
+    void hudEl.offsetWidth;     // force reflow to restart the animation
+    hudEl.classList.add('flash');
+  }
+
+  /* — Fiedler vector via shifted power iteration with deflation —
+     We want the eigenvector of L for the smallest non-zero eigenvalue
+     (λ₂ — the algebraic connectivity). Trick: iterate (M·I − L) which
+     has the SAME eigenvectors but the eigenvalues are reflected, so
+     the small λ of L become the large of (M·I − L), and ordinary power
+     iteration converges. Deflate the constant vector (v₁) by removing
+     the mean each step. */
+  function computeFiedler() {
+    const N = nodes.length;
+    if (!N) { fiedler = null; return; }
+
+    // Diagonal of L is the degree vector
+    const D = new Float32Array(N);
+    for (let i = 0; i < N; i++) D[i] = adj[i].length;
+    let dmax = 0;
+    for (let i = 0; i < N; i++) if (D[i] > dmax) dmax = D[i];
+    const M = (dmax + 1) * 2;   // shift so (M·I − L) is PSD-ish
+
+    // (M·I − L) · x  =  M·x − L·x  =  M·x − (D·x − A·x)  =  (M − D)·x + A·x
+    function shifted(x, out) {
+      for (let i = 0; i < N; i++) {
+        let s = (M - D[i]) * x[i];
+        const ni = adj[i];
+        for (let k = 0; k < ni.length; k++) s += x[ni[k]];
+        out[i] = s;
+      }
+    }
+
+    let v = new Float32Array(N);
+    let w = new Float32Array(N);
+    // Random init with mean 0
+    let sum = 0;
+    for (let i = 0; i < N; i++) { v[i] = Math.random() - 0.5; sum += v[i]; }
+    const meanInit = sum / N;
+    for (let i = 0; i < N; i++) v[i] -= meanInit;
+
+    const ITERS = 90;
+    for (let it = 0; it < ITERS; it++) {
+      // Deflate: project out the constant vector (v₁ = (1,…,1)/√N)
+      let m = 0;
+      for (let i = 0; i < N; i++) m += v[i];
+      m /= N;
+      let norm = 0;
+      for (let i = 0; i < N; i++) {
+        v[i] -= m;
+        norm += v[i] * v[i];
+      }
+      norm = Math.sqrt(norm);
+      if (norm < 1e-9) {
+        for (let i = 0; i < N; i++) v[i] = Math.random() - 0.5;
+        continue;
+      }
+      for (let i = 0; i < N; i++) v[i] /= norm;
+      // Apply shifted operator
+      shifted(v, w);
+      const t = v; v = w; w = t;
+    }
+
+    // Final clean-up: deflate + normalize
+    let m = 0;
+    for (let i = 0; i < N; i++) m += v[i];
+    m /= N;
+    let n2 = 0;
+    for (let i = 0; i < N; i++) { v[i] -= m; n2 += v[i] * v[i]; }
+    const nn = Math.sqrt(n2) || 1;
+    for (let i = 0; i < N; i++) v[i] /= nn;
+
+    // Rayleigh quotient for λ₂ = vᵀ L v
+    // L·v = D·v − A·v
+    let lambda = 0;
+    for (let i = 0; i < N; i++) {
+      let lv = D[i] * v[i];
+      const ni = adj[i];
+      for (let k = 0; k < ni.length; k++) lv -= v[ni[k]];
+      lambda += v[i] * lv;
+    }
+    fiedler = v;
+    fiedlerLambda = lambda;
   }
 
   function step(dt) {
@@ -181,16 +340,21 @@
       const a = nodes[e.a], b = nodes[e.b];
       const dx = b.x - a.x, dy = b.y - a.y;
       const d = Math.sqrt(dx * dx + dy * dy);
-      if (d > 220) continue;
-      const t = 1 - d / 220;
-      const alpha = 0.025 + 0.075 * t * e.w;
-      // Colour by node pair: if both cyan → cyan; both mag → magenta; mixed → violet
+      if (d > 260) continue;
+      const t = 1 - d / 260;
+      // Cut-edges (across the Fiedler partition) carry the Laplacian
+      // signal and get a slightly stronger violet draw.
+      const isCut = e.cut === true;
+      const alpha = isCut
+        ? 0.075 + 0.18 * t * e.w
+        : 0.05  + 0.12 * t * e.w;
       let col;
-      if (a.c === 0 && b.c === 0)      col = `rgba(107,242,255,${alpha})`;
-      else if (a.c === 1 && b.c === 1) col = `rgba(255,91,216,${alpha})`;
-      else                              col = `rgba(159,123,255,${alpha * 0.85})`;
+      if (isCut)                        col = `rgba(159,123,255,${alpha})`;
+      else if (a.c === 0 && b.c === 0)  col = `rgba(107,242,255,${alpha})`;
+      else if (a.c === 1 && b.c === 1)  col = `rgba(255,91,216,${alpha})`;
+      else                               col = `rgba(159,123,255,${alpha * 0.85})`;
       ctx.strokeStyle = col;
-      ctx.lineWidth = 0.4 + e.w * 0.35;
+      ctx.lineWidth = 0.5 + e.w * 0.55 + (isCut ? 0.25 : 0);
       ctx.beginPath();
       ctx.moveTo(a.x, a.y);
       ctx.lineTo(b.x, b.y);
