@@ -1,0 +1,506 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="color-scheme" content="dark" />
+
+  <title>Topaas — Topology-as-a-Service</title>
+  <meta name="description" content="The spectral graph engine for legacy code. We compute the topology of large software systems and hand it to AI agents." />
+
+  <meta property="og:title" content="Topaas — Topology-as-a-Service" />
+  <meta property="og:description" content="The spectral graph engine for legacy code." />
+  <meta property="og:type" content="website" />
+
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%2304060F'/%3E%3Ccircle cx='32' cy='32' r='14' fill='none' stroke='%236BF2FF' stroke-width='2'/%3E%3Ccircle cx='32' cy='18' r='4' fill='%23FF5BD8'/%3E%3Ccircle cx='44' cy='38' r='4' fill='%236BF2FF'/%3E%3Ccircle cx='20' cy='38' r='4' fill='%236BF2FF'/%3E%3C/svg%3E" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&family=IBM+Plex+Sans:ital,wght@0,300..700;1,300..600&family=JetBrains+Mono:ital,wght@0,300..600;1,300..600&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <canvas id="field" aria-hidden="true"></canvas>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="vignette" aria-hidden="true"></div>
+
+  <!-- Floating equations & glyphs as decorative atmosphere -->
+  <div class="float-eq" aria-hidden="true">
+    <span class="eq-1">Lv = λv</span>
+    <span class="eq-2">L = D − A</span>
+    <span class="eq-3">[Q, H] = 0</span>
+    <span class="eq-4">χ = V − E + F</span>
+    <span class="eq-5">π₁(S¹) = ℤ</span>
+    <span class="eq-6">∂² = 0</span>
+    <span class="eq-7">H<sub>n</sub>(X; ℤ)</span>
+    <span class="eq-8">𝒩 = 1 SUSY</span>
+  </div>
+
+  <!-- Decorative topological figures: trefoil + torus + möbius (SVG) -->
+  <div class="topo-glyphs" aria-hidden="true">
+    <!-- Trefoil knot -->
+    <svg class="topo topo-trefoil" viewBox="-50 -50 100 100" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round">
+      <path d="M 0 -30
+               C 26 -30, 35 0, 0 18
+               C -35 0, -26 -30, 0 -30 Z" />
+      <path d="M -26 13
+               C 0 -10, 26 13, 0 30
+               C -10 25, -22 18, -26 13 Z" />
+      <path d="M 26 13
+               C 0 -10, -26 13, 0 30
+               C 10 25, 22 18, 26 13 Z" />
+    </svg>
+
+    <!-- Torus (perspective wireframe) -->
+    <svg class="topo topo-torus" viewBox="-60 -40 120 80" stroke="currentColor" fill="none" stroke-width="1.2">
+      <ellipse cx="0" cy="0" rx="48" ry="22" />
+      <ellipse cx="0" cy="0" rx="48" ry="12" />
+      <ellipse cx="0" cy="0" rx="38" ry="9" />
+      <path d="M -48 0 Q -40 -10 -30 -10 Q -20 -10 -12 0 Q -20 10 -30 10 Q -40 10 -48 0 Z" />
+      <path d="M  48 0 Q  40 -10  30 -10 Q  20 -10  12 0 Q  20 10  30 10 Q  40 10  48 0 Z" />
+    </svg>
+
+    <!-- Möbius strip -->
+    <svg class="topo topo-mobius" viewBox="-60 -28 120 56" stroke="currentColor" fill="none" stroke-width="1.2">
+      <path d="M -50 -8 C -30 -22, -10 -22,  10 -8 C  30  6,  50  6,  50 -8" />
+      <path d="M -50  8 C -30  22, -10  22,  10  8 C  30 -6,  50 -6,  50  8" />
+      <path d="M -50 -8 L -50  8" />
+      <path d="M  50 -8 L  50  8" />
+    </svg>
+
+    <!-- Calabi-Yau-ish simplicial figure -->
+    <svg class="topo topo-cy" viewBox="-40 -40 80 80" stroke="currentColor" fill="none" stroke-width="1">
+      <polygon points="0,-32  28,-10  18,24  -18,24  -28,-10" />
+      <polygon points="0,-20  16,-6  10,16  -10,16  -16,-6" />
+      <path d="M 0 -32 L 0 -20 M 28 -10 L 16 -6 M 18 24 L 10 16 M -18 24 L -10 16 M -28 -10 L -16 -6" />
+      <path d="M -28 -10 L 18 24 M 28 -10 L -18 24 M 0 -32 L 0 24 M -28 -10 L 28 -10" />
+    </svg>
+  </div>
+
+  <header class="nav">
+    <a class="brand" href="#top" aria-label="Topaas home">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32" width="22" height="22">
+          <circle cx="16" cy="16" r="13" fill="none" stroke="currentColor" stroke-width="1.5"/>
+          <circle cx="16" cy="6"  r="3.2" fill="currentColor"/>
+          <circle cx="25" cy="22" r="2.6" fill="currentColor"/>
+          <circle cx="7"  cy="22" r="2.6" fill="currentColor"/>
+          <line x1="16" y1="6" x2="25" y2="22" stroke="currentColor" stroke-width="1.1"/>
+          <line x1="16" y1="6" x2="7"  y2="22" stroke="currentColor" stroke-width="1.1"/>
+          <line x1="7"  y1="22" x2="25" y2="22" stroke="currentColor" stroke-width="1.1"/>
+        </svg>
+      </span>
+      <span class="brand-text">
+        <span class="brand-name">TOPAAS</span>
+        <span class="brand-sub">Topology-as-a-Service</span>
+      </span>
+    </a>
+
+    <nav class="nav-links" aria-label="Primary">
+      <a href="#shape"><span class="nav-num">01</span>Shape</a>
+      <a href="#operators"><span class="nav-num">02</span>Operators</a>
+      <a href="#transmit"><span class="nav-num">03</span>Transmit</a>
+    </nav>
+
+    <div class="nav-status" aria-live="polite">
+      <span class="pulse" aria-hidden="true"></span>
+      <span class="nav-status-text">In&nbsp;stealth · MMXXVI</span>
+    </div>
+  </header>
+
+  <main id="top">
+
+    <!-- ============================================================
+         HERO
+         ============================================================ -->
+    <section class="hero" aria-labelledby="hero-title">
+
+      <div class="hero-grid">
+
+        <div class="hero-copy">
+          <p class="eyebrow">
+            <span class="eyebrow-dot"></span>
+            <span><b>Topaas</b> // Topology-as-a-Service · est. MMXXVI</span>
+          </p>
+
+          <h1 id="hero-title" class="display">
+            <span class="line"><span class="char">L</span><span class="char">a</span><span class="char">p</span><span class="char">l</span><span class="char">a</span><span class="char">c</span><span class="char">e</span></span>
+            <span class="line line-mono">ENGINE</span>
+          </h1>
+
+          <p class="lede">
+            The spectral graph engine for <em>legacy code</em>.
+            We compute the <em>topology</em> of large software systems
+            and hand the structure to the AI agents that will rebuild them.
+          </p>
+
+          <p class="formula" aria-label="Eigenvalue equation for the graph Laplacian">
+            <span class="mono">
+              ℒ
+              <span class="paren">{</span>
+              codebase
+              <span class="paren">}</span>
+              <span class="arrow">⟶</span>
+              <span class="hi">Lv = λv</span>
+              <span class="arrow">⟶</span>
+              agent-ready spectrum
+            </span>
+          </p>
+
+          <div class="cta-row">
+            <a class="btn btn-primary" href="#transmit">
+              <span>Transmit</span>
+              <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+            <a class="btn btn-ghost" href="#shape">
+              <span>Read the shape</span>
+            </a>
+          </div>
+
+          <dl class="hero-meta">
+            <div>
+              <dt>Domain</dt>
+              <dd>Spectral graph theory · Riemannian topology · LLM systems</dd>
+            </div>
+            <div>
+              <dt>Substrate</dt>
+              <dd>Legacy codebases · 10⁶+ LOC</dd>
+            </div>
+            <div>
+              <dt>State</dt>
+              <dd>Stealth · onboarding partners</dd>
+            </div>
+          </dl>
+        </div>
+
+        <!-- Instrument / Spectrometer -->
+        <aside class="instrument" aria-label="Live graph Laplacian spectrometer">
+          <header class="ins-header">
+            <span class="ins-dot ins-dot-cyan"></span>
+            <span class="ins-dot ins-dot-mag"></span>
+            <span class="ins-dot ins-dot-am"></span>
+            <span class="ins-title">L = D − A // monitor</span>
+            <span class="ins-pid">0x7AE1</span>
+          </header>
+
+          <div class="ins-body">
+
+            <div class="ins-panel ins-panel-graph">
+              <div class="ins-label">
+                <span><i>G</i> = (V, E)</span>
+                <span class="ins-tag">dependency graph</span>
+              </div>
+              <svg class="graph-svg" viewBox="0 0 380 200" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+                <g id="graph-edges"></g>
+                <g id="graph-nodes"></g>
+              </svg>
+              <div class="ins-readout">
+                <span>|V|</span><b id="ro-V">—</b>
+                <span>|E|</span><b id="ro-E">—</b>
+                <span>χ</span><b id="ro-chi">—</b>
+                <span>k</span><b id="ro-k">—</b>
+              </div>
+            </div>
+
+            <div class="ins-panel ins-panel-spec">
+              <div class="ins-label">
+                <span>spec(L)</span>
+                <span class="ins-tag">eigenvalues</span>
+              </div>
+              <svg class="spectrum-svg" viewBox="0 0 380 70" preserveAspectRatio="none" aria-hidden="true">
+                <g id="spectrum-bars"></g>
+                <line x1="0" y1="66" x2="380" y2="66" stroke="currentColor" stroke-width="0.6" stroke-dasharray="2 3" opacity="0.4"/>
+              </svg>
+              <div class="ins-readout">
+                <span>λ<sub>2</sub></span><b id="ro-l2">—</b>
+                <span>λ<sub>max</sub></span><b id="ro-lmax">—</b>
+                <span>gap</span><b id="ro-gap">—</b>
+              </div>
+            </div>
+
+          </div>
+
+          <footer class="ins-footer">
+            <span>spectral.embed · streaming</span>
+            <span class="ins-blink">●</span>
+            <span>v0.1.r3</span>
+          </footer>
+        </aside>
+
+      </div>
+
+      <div class="hero-tape" aria-hidden="true">
+        <div class="tape-track">
+          <span class="t-sym">ℒ</span><span>topology as a service</span><span class="t-dot">·</span>
+          <span>spectral decomposition of legacy systems</span><span class="t-dot">·</span>
+          <span class="t-sym">∂</span><span>simplicial complex of intent</span><span class="t-dot">·</span>
+          <span>fundamental group of the codebase</span><span class="t-dot">·</span>
+          <span class="t-sym">π₁</span><span>Calabi-Yau of computation</span><span class="t-dot">·</span>
+          <span class="t-sym">ℒ</span><span>topology as a service</span><span class="t-dot">·</span>
+          <span>spectral decomposition of legacy systems</span><span class="t-dot">·</span>
+          <span class="t-sym">∂</span><span>simplicial complex of intent</span><span class="t-dot">·</span>
+          <span>fundamental group of the codebase</span><span class="t-dot">·</span>
+          <span class="t-sym">π₁</span><span>Calabi-Yau of computation</span><span class="t-dot">·</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         THE SHAPE OF CODE
+         ============================================================ -->
+    <section class="shape" id="shape" aria-labelledby="shape-title">
+      <div class="section-shell">
+
+        <header class="section-head">
+          <p class="eyebrow"><span class="eyebrow-num">01</span> The Shape of Code</p>
+          <h2 id="shape-title" class="display-2">
+            Coding agents see <em>tokens</em>.<br/>
+            Engineers see <em>files</em>.<br/>
+            <span class="dim">A codebase is a <u>manifold</u>.</span>
+          </h2>
+          <p class="head-sub">
+            Functions, modules, and data flows form a high-dimensional
+            simplicial complex with measurable topology — homology,
+            fundamental group, spectrum. Most of what makes legacy systems
+            hard is invariant under refactoring. We compute the invariants.
+          </p>
+        </header>
+
+        <div class="pipeline">
+
+          <div class="step step-1">
+            <div class="step-num"><span>01</span></div>
+            <div class="step-body">
+              <h3>Ingest</h3>
+              <p>Raw code · symbols · runtime traces · commit history</p>
+              <p class="step-form mono">C = ⋃<sub>i</sub> f<sub>i</sub></p>
+            </div>
+          </div>
+
+          <div class="step-arrow" aria-hidden="true">
+            <svg viewBox="0 0 60 20"><path d="M0 10 L52 10 M44 4 L52 10 L44 16" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+
+          <div class="step step-2">
+            <div class="step-num"><span>02</span></div>
+            <div class="step-body">
+              <h3>Lift to a graph</h3>
+              <p>Build the dependency complex <span class="mono">G = (V, E)</span>
+              and weight edges by behavioural coupling.</p>
+              <p class="step-form mono">G ↪ K(C)</p>
+            </div>
+          </div>
+
+          <div class="step-arrow" aria-hidden="true">
+            <svg viewBox="0 0 60 20"><path d="M0 10 L52 10 M44 4 L52 10 L44 16" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+
+          <div class="step step-3">
+            <div class="step-num"><span>03</span></div>
+            <div class="step-body">
+              <h3>Compute the Laplacian</h3>
+              <p>Diagonalise <span class="mono">L = D − A</span>.
+              The spectrum encodes clusters, bottlenecks, and the
+              true seams of the system.</p>
+              <p class="step-form mono">L v<sub>k</sub> = λ<sub>k</sub> v<sub>k</sub></p>
+            </div>
+          </div>
+
+          <div class="step-arrow" aria-hidden="true">
+            <svg viewBox="0 0 60 20"><path d="M0 10 L52 10 M44 4 L52 10 L44 16" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+
+          <div class="step step-4">
+            <div class="step-num step-num-hi"><span>04</span></div>
+            <div class="step-body">
+              <h3>Hand to the agent</h3>
+              <p>Structured intelligence — components, intent,
+              behavioural commitments, risk surfaces — at a scale
+              no context window can hold.</p>
+              <p class="step-form mono">spec(L) → 𝒜</p>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============================================================
+         OPERATORS — three principles
+         ============================================================ -->
+    <section class="operators" id="operators" aria-labelledby="op-title">
+      <div class="section-shell">
+
+        <header class="section-head">
+          <p class="eyebrow"><span class="eyebrow-num">02</span> Field Operators</p>
+          <h2 id="op-title" class="display-2">
+            Three invariants we hold <em>quietly</em>, for now.
+          </h2>
+        </header>
+
+        <div class="notes-grid">
+
+          <article class="note note-cyan">
+            <header class="note-head">
+              <span class="note-sym">M</span>
+              <div>
+                <span class="note-greek">manifold</span>
+                <span class="note-title">Scale</span>
+              </div>
+            </header>
+            <p class="note-body">
+              Built for codebases that exceed any single context window
+              by orders of magnitude. Where agents go blind, the engine
+              sees a smooth manifold.
+            </p>
+            <footer class="note-foot">
+              <span class="mono">dim(C) ≫ ctx(𝒜)</span>
+            </footer>
+          </article>
+
+          <article class="note note-mag">
+            <header class="note-head">
+              <span class="note-sym">Σ</span>
+              <div>
+                <span class="note-greek">spectrum</span>
+                <span class="note-title">Structure</span>
+              </div>
+            </header>
+            <p class="note-body">
+              We extract the spectrum of the Laplacian — clusters,
+              connectivity, bottlenecks, components. The unit of work
+              becomes the eigenmode, not the line.
+            </p>
+            <footer class="note-foot">
+              <span class="mono">spec(L) = {λ<sub>0</sub>,…,λ<sub>n</sub>}</span>
+            </footer>
+          </article>
+
+          <article class="note note-vio">
+            <header class="note-head">
+              <span class="note-sym">H</span>
+              <div>
+                <span class="note-greek">homotopy</span>
+                <span class="note-title">Continuity</span>
+              </div>
+            </header>
+            <p class="note-body">
+              Software deforms over time. We track the system up to
+              homotopy — keeping the topology coherent as code, intent,
+              and behaviour drift.
+            </p>
+            <footer class="note-foot">
+              <span class="mono">C<sub>t</sub> ≃ C<sub>t+δ</sub></span>
+            </footer>
+          </article>
+
+        </div>
+
+        <p class="ops-caption">
+          The same operator — Laplace's — runs through signal processing,
+          graph theory, Riemannian geometry, and quantum mechanics. We brought
+          it to legacy software.
+        </p>
+
+      </div>
+    </section>
+
+    <!-- ============================================================
+         TRANSMIT (Contact)
+         ============================================================ -->
+    <section class="transmit" id="transmit" aria-labelledby="transmit-title">
+      <div class="section-shell">
+
+        <header class="section-head">
+          <p class="eyebrow"><span class="eyebrow-num">03</span> Transmit</p>
+          <h2 id="transmit-title" class="display-2">
+            Quiet, <em>not closed</em>.
+          </h2>
+          <p class="transmit-lede">
+            Investors, prospective design partners, engineers who
+            think about software as a topological object — write to us.
+          </p>
+        </header>
+
+        <form class="transmit-form" id="contact-form" novalidate>
+
+          <div class="form-grid">
+
+            <label class="field">
+              <span class="field-label"><span class="field-num">01</span> Name</span>
+              <input type="text" name="name" autocomplete="name" required placeholder="—" />
+            </label>
+
+            <label class="field">
+              <span class="field-label"><span class="field-num">02</span> Email</span>
+              <input type="email" name="email" autocomplete="email" required placeholder="you@somewhere" />
+            </label>
+
+            <label class="field field-wide">
+              <span class="field-label"><span class="field-num">03</span> Affiliation <span class="optional">— optional</span></span>
+              <input type="text" name="affiliation" autocomplete="organization" placeholder="Fund, company, lab, or independent" />
+            </label>
+
+            <fieldset class="field field-radio field-wide">
+              <legend class="field-label"><span class="field-num">04</span> Manifold</legend>
+              <div class="radio-row">
+                <label><input type="radio" name="role" value="investor" /><span>Investor</span></label>
+                <label><input type="radio" name="role" value="enterprise" /><span>Enterprise</span></label>
+                <label><input type="radio" name="role" value="engineer" /><span>Engineer / Researcher</span></label>
+                <label><input type="radio" name="role" value="other" checked /><span>Otherwise curious</span></label>
+              </div>
+            </fieldset>
+
+            <label class="field field-wide">
+              <span class="field-label"><span class="field-num">05</span> Signal <span class="optional">— optional, but read</span></span>
+              <textarea name="note" rows="4" placeholder="A sentence is enough."></textarea>
+            </label>
+
+          </div>
+
+          <div class="form-footer">
+            <p class="form-fine">
+              By transmitting, you consent to a single courteous reply.
+              No mailing list. No newsletter.
+            </p>
+            <button type="submit" class="btn btn-primary btn-large">
+              <span>Transmit</span>
+              <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M4 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+
+          <output class="form-status" id="form-status" aria-live="polite"></output>
+
+        </form>
+
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="foot">
+    <div class="foot-row">
+      <div class="foot-brand">
+        <span class="mono foot-name">Topaas.AI</span>
+        <span class="foot-dim">Topology-as-a-Service · Topological Adaptive Autonomous System</span>
+        <span class="foot-dim">© MMXXVI · all spectra reserved</span>
+      </div>
+      <div class="foot-meta">
+        <span>L-engine v0.1.r3 · monitor.bind(0)</span>
+        <span class="foot-dim">stealth · raising · onboarding partners</span>
+      </div>
+    </div>
+
+    <div class="foot-eq" aria-hidden="true">
+      <span class="mono">
+        ℒ{ legacy(t) } ⟼ Lv = λv ⟼ 𝒜
+      </span>
+    </div>
+  </footer>
+
+  <script src="script.js" defer></script>
+</body>
+</html>
