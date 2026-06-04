@@ -668,6 +668,39 @@ main { position: relative; z-index: 10; }
   50%      { opacity: 1; }
 }
 
+/* — emit strip: spectrum handed off as the spec (pipeline step 04) — */
+.ins-emit {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 2px;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: linear-gradient(90deg, var(--cyan-soft), transparent 55%, var(--magenta-soft));
+  font-family: var(--mono);
+  font-weight: 400;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+}
+.ins-emit-flow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--paper-dim);
+}
+.ins-emit-flow .emit-in  { color: var(--cyan);    font-weight: 500; }
+.ins-emit-flow .emit-out { color: var(--magenta); font-weight: 500; }
+.ins-emit-arrow { color: var(--paper-mute); }
+.ins-emit-step {
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--paper-mute);
+  white-space: nowrap;
+}
+
 /* =====================================================================
    HERO TAPE
    ===================================================================== */
@@ -851,6 +884,33 @@ main { position: relative; z-index: 10; }
 .step-arrow svg { width: 100%; opacity: 0.6; }
 
 .step-4 .step-form { color: var(--magenta) !important; }
+
+/* — spec(L) thesis: the spectrum is the spec — */
+.spec-thesis {
+  max-width: 780px;
+  margin: 56px auto 0;
+  padding-top: 32px;
+  border-top: 1px solid var(--line);
+  font-family: var(--sans);
+  font-weight: 300;
+  font-size: clamp(16px, 1.5vw, 18px);
+  line-height: 1.6;
+  text-align: center;
+  color: var(--paper-dim);
+}
+.spec-thesis em {
+  font-style: normal;
+  color: var(--cyan);
+  font-weight: 400;
+  text-shadow: 0 0 12px var(--cyan-glow);
+}
+.spec-term {
+  color: var(--cyan);
+  font-weight: 500;
+  text-decoration: underline dotted;
+  text-decoration-color: var(--cyan-deep);
+  text-underline-offset: 4px;
+}
 
 /* =====================================================================
    OPERATORS (notes grid)

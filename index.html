@@ -138,7 +138,7 @@
             and hand the structure to the AI agents that will rebuild them.
           </p>
 
-          <p class="formula" aria-label="Eigenvalue equation for the graph Laplacian">
+          <p class="formula" aria-label="From codebase to the graph Laplacian spectrum — spec(L)">
             <span class="mono">
               ℒ
               <span class="paren">{</span>
@@ -147,7 +147,7 @@
               <span class="arrow">⟶</span>
               <span class="hi">Lv = λv</span>
               <span class="arrow">⟶</span>
-              agent-ready spectrum
+              <span class="hi spec-term">spec(L)</span>
             </span>
           </p>
 
@@ -192,7 +192,7 @@
             <div class="ins-panel ins-panel-graph">
               <div class="ins-label">
                 <span><i>G</i> = (V, E)</span>
-                <span class="ins-tag">dependency graph</span>
+                <span class="ins-tag">02 · lift</span>
               </div>
               <svg class="graph-svg" viewBox="0 0 380 200" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
                 <g id="graph-edges"></g>
@@ -201,15 +201,15 @@
               <div class="ins-readout">
                 <span>|V|</span><b id="ro-V">—</b>
                 <span>|E|</span><b id="ro-E">—</b>
-                <span>χ</span><b id="ro-chi">—</b>
-                <span>k</span><b id="ro-k">—</b>
+                <span>loops</span><b id="ro-chi">—</b>
+                <span>clusters</span><b id="ro-k">—</b>
               </div>
             </div>
 
             <div class="ins-panel ins-panel-spec">
               <div class="ins-label">
                 <span>spec(L)</span>
-                <span class="ins-tag">eigenvalues</span>
+                <span class="ins-tag">03 · spectrum</span>
               </div>
               <svg class="spectrum-svg" viewBox="0 0 380 70" preserveAspectRatio="none" aria-hidden="true">
                 <g id="spectrum-bars"></g>
@@ -220,6 +220,11 @@
                 <span>λ<sub>max</sub></span><b id="ro-lmax">—</b>
                 <span>gap</span><b id="ro-gap">—</b>
               </div>
+            </div>
+
+            <div class="ins-emit">
+              <span class="ins-emit-flow"><b class="emit-in">spec(L)</b> <span class="ins-emit-arrow">⟶</span> <b class="emit-out">agent spec</b></span>
+              <span class="ins-emit-step">04 · emit</span>
             </div>
 
           </div>
@@ -318,14 +323,20 @@
             <div class="step-num step-num-hi"><span>04</span></div>
             <div class="step-body">
               <h3>Hand to the agent</h3>
-              <p>Structured intelligence — components, intent,
-              behavioural commitments, risk surfaces — at a scale
-              no context window can hold.</p>
-              <p class="step-form mono">spec(L) → 𝒜</p>
+              <p>The spectrum <em>becomes the spec</em> — components, intent,
+              behavioural commitments, risk surfaces: the build order an
+              agent can execute, at a scale no context window holds.</p>
+              <p class="step-form mono">spec(L) ≡ the spec</p>
             </div>
           </div>
 
         </div>
+
+        <p class="spec-thesis">
+          <span class="mono spec-term">spec(L)</span> reads two ways — the
+          <em>spec</em>trum of the Laplacian, and the <em>spec</em>ification
+          your agent builds from. That's the whole idea.
+        </p>
 
       </div>
     </section>

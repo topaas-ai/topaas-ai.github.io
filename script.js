@@ -669,15 +669,14 @@
     if (!G.nodes) return;
     const V = G.nodes.length;
     const E = G.edges.length;
-    // For a planar-ish graph, Euler characteristic χ = V − E + F ≈ 2 - 2g
-    // We'll compute a plausible χ based on V and E (V - E + 1 for forest, 2 for connected planar).
-    const chi = V - E + Math.max(1, Math.round(Math.abs(V - E) / 8));
     // k = number of clusters (count of distinct cluster ids)
     const ks = new Set(G.nodes.map(n => n.c)).size;
+    // first Betti number b₁ = E − V + k → independent loops (cycles) in the graph
+    const loops = Math.max(0, E - V + ks);
 
     if (roV)   roV.textContent   = V;
     if (roE)   roE.textContent   = E;
-    if (roChi) roChi.textContent = chi >= 0 ? `+${chi}` : String(chi);
+    if (roChi) roChi.textContent = loops;
     if (roK)   roK.textContent   = ks;
 
     if (spec) {
