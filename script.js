@@ -727,7 +727,7 @@
      =================================================================== */
 
   const revealTargets = document.querySelectorAll(
-    '.section-head, .step, .note, .transmit-form, .ops-caption, .hero-tape'
+    '.section-head, .step, .note, .readout, .readings-note, .lineage, .transmit-form, .ops-caption, .hero-tape'
   );
   revealTargets.forEach(el => el.classList.add('fade-up'));
 
@@ -865,6 +865,63 @@
         ticking = true;
       }
     }, { passive: true });
+  }
+
+  /* ===================================================================
+     7. BENCHMARK COUNT-UP
+     The Field Readings numbers count up from zero the first time each
+     card scrolls into view. Reduced-motion just shows the final value.
+     =================================================================== */
+
+  const counters = document.querySelectorAll('.readout-num[data-count]');
+
+  function formatCount(target, suffix, value) {
+    const decimals = (String(target).split('.')[1] || '').length;
+    return value.toFixed(decimals) + (suffix || '');
+  }
+
+  function animateCount(el) {
+    const target = parseFloat(el.getAttribute('data-count'));
+    const suffix = el.getAttribute('data-suffix') || '';
+    if (!isFinite(target)) return;
+    if (prefersReduced) {
+      el.textContent = formatCount(target, suffix, target);
+      return;
+    }
+    const dur = 1100;
+    const start = performance.now();
+    function tick(now) {
+      const t = Math.min(1, (now - start) / dur);
+      const eased = 1 - Math.pow(1 - t, 3);   // easeOutCubic
+      el.textContent = formatCount(target, suffix, target * eased);
+      if (t < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  if (counters.length) {
+    if (!prefersReduced && 'IntersectionObserver' in window) {
+      // Seed each counter at zero so the value climbs cleanly the moment its
+      // card scrolls in, instead of flashing down from the final literal that
+      // ships in the markup (which is the no-JS / reduced-motion fallback).
+      counters.forEach(c => {
+        const target = parseFloat(c.getAttribute('data-count'));
+        const suffix = c.getAttribute('data-suffix') || '';
+        if (isFinite(target)) c.textContent = formatCount(target, suffix, 0);
+      });
+      const cio = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            animateCount(entry.target);
+            cio.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.4 });
+      counters.forEach(c => cio.observe(c));
+    } else {
+      // Reduced motion or no IntersectionObserver: leave the final literal.
+      counters.forEach(animateCount);
+    }
   }
 
 })();

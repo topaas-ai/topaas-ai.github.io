@@ -101,7 +101,9 @@
     <nav class="nav-links" aria-label="Primary">
       <a href="#shape"><span class="nav-num">01</span>Shape</a>
       <a href="#operators"><span class="nav-num">02</span>Operators</a>
-      <a href="#transmit"><span class="nav-num">03</span>Transmit</a>
+      <a href="#readings"><span class="nav-num">03</span>Readings</a>
+      <a href="#team"><span class="nav-num">04</span>Team</a>
+      <a href="#transmit"><span class="nav-num">05</span>Transmit</a>
     </nav>
 
     <div class="nav-status" aria-live="polite">
@@ -409,13 +411,132 @@
     </section>
 
     <!-- ============================================================
+         FIELD READINGS — benchmarks / evidence
+         ============================================================ -->
+    <section class="readings" id="readings" aria-labelledby="readings-title">
+      <div class="section-shell">
+
+        <header class="section-head">
+          <p class="eyebrow"><span class="eyebrow-num">03</span> Field Readings</p>
+          <h2 id="readings-title" class="display-2">
+            We don't assert the spectrum.<br/>
+            <span class="dim">We <em>measure</em> it.</span>
+          </h2>
+          <p class="head-sub">
+            Early readings from the engine, run against open substrates at
+            production scale — codebases an order of magnitude beyond any
+            context window. Numbers are outcomes only: answer quality held at
+            parity, the implementation held quiet.
+          </p>
+        </header>
+
+        <div class="readout-grid">
+
+          <article class="readout readout-cyan">
+            <div class="readout-top">
+              <span class="readout-idx">01</span>
+              <span class="readout-unit">token cost</span>
+            </div>
+            <div class="readout-val">
+              <span class="readout-num" data-count="52" data-suffix="×">52×</span>
+              <span class="readout-peak">peak&nbsp;<b>117×</b></span>
+            </div>
+            <p class="readout-label">Fewer tokens, same answer.</p>
+            <p class="readout-foot mono">≈ 590K ⟶ 11K tokens / query</p>
+          </article>
+
+          <article class="readout readout-mag">
+            <div class="readout-top">
+              <span class="readout-idx">02</span>
+              <span class="readout-unit">localization</span>
+            </div>
+            <div class="readout-val">
+              <span class="readout-num" data-count="93.75" data-suffix="%">93.75%</span>
+              <span class="readout-peak">+5.8&nbsp;<b>pts</b> vs. baseline</span>
+            </div>
+            <p class="readout-label">Find the right file, top-5.</p>
+            <p class="readout-foot mono">issue ⟶ the right file · file Acc@5</p>
+          </article>
+
+          <article class="readout readout-vio">
+            <div class="readout-top">
+              <span class="readout-idx">03</span>
+              <span class="readout-unit">rebuild</span>
+            </div>
+            <div class="readout-val">
+              <span class="readout-num" data-count="93" data-suffix="%">93%</span>
+              <span class="readout-peak">vs.&nbsp;<b>36%</b> single-shot</span>
+            </div>
+            <p class="readout-label">Correctness on a full rebuild.</p>
+            <p class="readout-foot mono">open distributed system · full reconstruction</p>
+          </article>
+
+          <article class="readout readout-am">
+            <div class="readout-top">
+              <span class="readout-idx">04</span>
+              <span class="readout-unit">scale</span>
+            </div>
+            <div class="readout-val">
+              <span class="readout-num" data-count="3" data-suffix="M">3M</span>
+              <span class="readout-peak">LOC&nbsp;<b>resolved</b></span>
+            </div>
+            <p class="readout-label">Lines lifted into one graph.</p>
+            <p class="readout-foot mono">~117K nodes · ~419K edges</p>
+          </article>
+
+        </div>
+
+        <p class="readings-note">
+          Measured on open-source substrates. Baselines are full-context and
+          single-shot agents; answer quality is held at parity by an
+          independent judge. Substrate identities and the production pipeline
+          stay folded while we're in stealth.
+        </p>
+
+      </div>
+    </section>
+
+    <!-- ============================================================
+         PROVENANCE — team
+         ============================================================ -->
+    <section class="provenance" id="team" aria-labelledby="team-title">
+      <div class="section-shell">
+
+        <header class="section-head">
+          <p class="eyebrow"><span class="eyebrow-num">04</span> Provenance</p>
+          <h2 id="team-title" class="display-2">
+            A small group, <em>quietly assembled</em>.
+          </h2>
+          <p class="head-sub">
+            Researchers and engineers who have built large-scale ML, data, and
+            distributed systems at the kind of places where scale is the
+            default. Names stay folded while we're in stealth — open a
+            transmission and we'll introduce ourselves.
+          </p>
+        </header>
+
+        <div class="lineage">
+          <span class="lineage-label">Prior&nbsp;roles&nbsp;at</span>
+          <ul class="wordmarks" aria-label="Organizations where individual team members previously worked">
+            <li class="wm"><span class="wm-name">AWS&nbsp;AI</span></li>
+            <li class="wm"><span class="wm-name">Meta</span></li>
+            <li class="wm"><span class="wm-name">Microsoft</span></li>
+            <li class="wm"><span class="wm-name">Wharton&nbsp;Research&nbsp;Data&nbsp;Services</span></li>
+          </ul>
+          <p class="lineage-fine">Past employers of individual team members. For identification only — no affiliation, sponsorship, or endorsement is implied.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============================================================
          TRANSMIT (Contact)
          ============================================================ -->
     <section class="transmit" id="transmit" aria-labelledby="transmit-title">
       <div class="section-shell">
 
         <header class="section-head">
-          <p class="eyebrow"><span class="eyebrow-num">03</span> Transmit</p>
+          <p class="eyebrow"><span class="eyebrow-num">05</span> Transmit</p>
           <h2 id="transmit-title" class="display-2">
             Quiet, <em>not closed</em>.
           </h2>
