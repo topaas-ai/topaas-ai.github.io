@@ -145,7 +145,15 @@ a { color: inherit; text-decoration: none; text-underline-offset: 3px; }
 .float-eq .eq-5 { top: 38%; right: 4%; animation-delay: -9s;  animation-duration: 30s; color: rgba(159,123,255,0.30); }
 .float-eq .eq-6 { top: 72%; right: 6%; animation-delay: -15s; animation-duration: 32s; }
 .float-eq .eq-7 { top: 82%; left: 38%; animation-delay: -5s;  animation-duration: 34s; }
-.float-eq .eq-8 { top:  6%; left: 44%; animation-delay: -18s; animation-duration: 28s; color: rgba(255,91,216,0.30); }
+.float-eq .eq-8 { top: 58%; right: 5%; animation-delay: -18s; animation-duration: 28s; color: rgba(255,91,216,0.30); }
+
+/* Keep the floating equations clear of the (now taller) hero copy column —
+   suppress the ones that fall behind the headline, tagline, and lede so the
+   left side reads clean. The right-side equations stay as ambient texture. */
+.float-eq .eq-1,
+.float-eq .eq-2,
+.float-eq .eq-3,
+.float-eq .eq-7 { display: none; }
 
 @keyframes drift {
   0%, 100% { transform: translateY(0) translateX(0); opacity: 0.4; }
@@ -341,6 +349,22 @@ main { position: relative; z-index: 10; }
   margin-right: 4px;
 }
 
+/* — plain-English category line, sits between the brand chip and wordmark — */
+.hero-kicker {
+  max-width: 600px;
+  margin: -12px 0 34px;
+  font-family: var(--sans);
+  font-weight: 300;
+  font-size: clamp(14.5px, 1.25vw, 17px);
+  line-height: 1.5;
+  letter-spacing: 0.005em;
+  color: var(--paper-dim);
+}
+.hero-kicker b {
+  color: var(--cyan);
+  font-weight: 500;
+}
+
 /* — Display title — */
 .display {
   margin: 0 0 36px;
@@ -400,6 +424,26 @@ main { position: relative; z-index: 10; }
   height: 1px;
   background: linear-gradient(90deg, var(--line-strong), transparent);
   margin-left: 8px;
+}
+
+/* — the promise: poetic headline beneath the wordmark — */
+.hero-tagline {
+  max-width: 680px;
+  margin: 0 0 26px;
+  font-family: var(--display);
+  font-weight: 350;
+  font-size: clamp(23px, 3.3vw, 40px);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--paper);
+  font-variation-settings: "opsz" 60, "wdth" 88, "wght" 360;
+}
+.hero-tagline em {
+  font-style: normal;
+  color: var(--cyan);
+  font-weight: 430;
+  font-variation-settings: "opsz" 60, "wdth" 90, "wght" 480;
+  white-space: nowrap;
 }
 
 .lede {
@@ -1567,6 +1611,8 @@ main { position: relative; z-index: 10; }
 .hero-copy > *:nth-child(4) { animation-delay: 0.46s; }
 .hero-copy > *:nth-child(5) { animation-delay: 0.58s; }
 .hero-copy > *:nth-child(6) { animation-delay: 0.70s; }
+.hero-copy > *:nth-child(7) { animation-delay: 0.82s; }
+.hero-copy > *:nth-child(8) { animation-delay: 0.94s; }
 @keyframes heroIn { to { opacity: 1; transform: translateY(0); } }
 
 .instrument {
