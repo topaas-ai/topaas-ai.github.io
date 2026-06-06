@@ -35,8 +35,8 @@
   --amber-glow:   rgba(255, 181, 82, 0.4);
 
   /* — type — */
-  --display: "Bricolage Grotesque", "Inter Tight", system-ui, sans-serif;
-  --sans:    "IBM Plex Sans", "Helvetica Neue", system-ui, sans-serif;
+  --display: "Inter", "Inter Tight", system-ui, sans-serif;
+  --sans:    "Inter", "Helvetica Neue", system-ui, sans-serif;
   --mono:    "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
   --shell-max: 1340px;
@@ -369,42 +369,29 @@ main { position: relative; z-index: 10; }
 .display {
   margin: 0 0 36px;
   font-family: var(--display);
-  font-weight: 350;
+  font-weight: 650;
   font-size: clamp(60px, 11vw, 170px);
-  line-height: 0.86;
-  letter-spacing: -0.04em;
-  font-variation-settings: "opsz" 96, "wdth" 78, "wght" 350;
+  line-height: 0.88;
+  letter-spacing: -0.045em;
+  font-variation-settings: normal;
   color: var(--paper);
 }
 .display .line { display: block; }
 .display .line:first-child {
   display: flex;
-  letter-spacing: -0.05em;
+  letter-spacing: -0.045em;
 }
 .display .line:first-child .char {
   display: inline-block;
-  transition: font-variation-settings .9s var(--ease), color .9s var(--ease);
-  background: linear-gradient(180deg, var(--paper) 0%, var(--paper) 60%, var(--cyan) 130%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-.display .line:first-child .char:nth-child(odd) {
-  font-variation-settings: "opsz" 96, "wdth" 75, "wght" 400;
-}
-.display .line:first-child .char:nth-child(even) {
-  font-variation-settings: "opsz" 96, "wdth" 85, "wght" 320;
-}
-.display .line:first-child:hover .char {
-  font-variation-settings: "opsz" 96, "wdth" 100, "wght" 500;
+  color: var(--paper);
 }
 
 .display .line-mono {
   font-family: var(--mono);
   font-weight: 300;
-  font-size: 0.32em;
-  letter-spacing: 0.55em;
-  margin-top: 0.45em;
+  font-size: 0.34em;
+  letter-spacing: 0.3em;
+  margin-top: 0.5em;
   color: var(--paper-dim);
   font-variation-settings: normal;
   display: flex;
@@ -431,18 +418,18 @@ main { position: relative; z-index: 10; }
   max-width: 680px;
   margin: 0 0 26px;
   font-family: var(--display);
-  font-weight: 350;
+  font-weight: 540;
   font-size: clamp(23px, 3.3vw, 40px);
   line-height: 1.1;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
   color: var(--paper);
-  font-variation-settings: "opsz" 60, "wdth" 88, "wght" 360;
+  font-variation-settings: normal;
 }
 .hero-tagline em {
   font-style: normal;
   color: var(--cyan);
-  font-weight: 430;
-  font-variation-settings: "opsz" 60, "wdth" 90, "wght" 480;
+  font-weight: 660;
+  font-variation-settings: normal;
   white-space: nowrap;
 }
 
@@ -804,27 +791,27 @@ main { position: relative; z-index: 10; }
 
 .display-2 {
   font-family: var(--display);
-  font-weight: 360;
+  font-weight: 560;
   font-size: clamp(34px, 5.2vw, 70px);
-  line-height: 1.04;
-  letter-spacing: -0.025em;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
   margin: 0;
   color: var(--paper);
-  font-variation-settings: "opsz" 96, "wdth" 90, "wght" 360;
+  font-variation-settings: normal;
 }
 .display-2 em {
   font-style: normal;
   color: var(--cyan);
-  font-weight: 420;
-  font-variation-settings: "opsz" 96, "wdth" 90, "wght" 450;
+  font-weight: 660;
+  font-variation-settings: normal;
 }
 .display-2 u {
   text-decoration: none;
   color: var(--magenta);
   font-style: italic;
-  font-weight: 400;
+  font-weight: 540;
   font-family: var(--display);
-  font-variation-settings: "opsz" 96, "wdth" 95, "wght" 380;
+  font-variation-settings: normal;
 }
 .display-2 .dim {
   display: block;
@@ -1149,14 +1136,14 @@ main { position: relative; z-index: 10; }
 }
 .readout-num {
   font-family: var(--display);
-  font-weight: 420;
+  font-weight: 640;
   font-size: clamp(44px, 5vw, 68px);
   line-height: 0.86;
   letter-spacing: -0.03em;
   color: var(--cyan);
   text-shadow: 0 0 22px var(--cyan-glow);
   font-variant-numeric: tabular-nums;
-  font-variation-settings: "opsz" 72, "wdth" 84, "wght" 430;
+  font-variation-settings: normal;
 }
 .readout-mag .readout-num { color: var(--magenta); text-shadow: 0 0 22px var(--magenta-glow); }
 .readout-vio .readout-num { color: var(--violet);  text-shadow: 0 0 22px var(--violet-glow); }
